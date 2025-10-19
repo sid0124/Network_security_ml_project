@@ -9,7 +9,7 @@ class NetworkSecurityException(Exception):
         super().__init__(self.error_message)
 
     def __str__(self):
-        return f"Error occured in python script name [{self.file_name}] line number [{self.lineno}] error message [{self.error_message}]"
+        return "Error occured in python script name [{0}] line number [{1}] error message [{2}]".format(self.file_name, self.lineno, str(self.error_message))
 
     def __repr__(self):
         return NetworkSecurityException.__name__.str()
