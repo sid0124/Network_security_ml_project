@@ -14,7 +14,7 @@ MONGO_DB_URI = os.getenv("MONGODB_URI")
 ca = certifi.where()
 
 
-class NetworkDataExtract:
+class NetworkDataExtract():
     def __init__(self):
         try:
             pass
@@ -36,8 +36,6 @@ class NetworkDataExtract:
             data = pd.read_csv(file_path)
             data.reset_index(drop=True, inplace=True)
             records = list(json.loads(data.T.to_json()).values())
-            if not records:
-                raise NetworkSecurityException("CSV file is empty. No records to insert.", sys)
             return records
         except Exception as e:
             raise NetworkSecurityException(e, sys)
@@ -45,11 +43,15 @@ class NetworkDataExtract:
     def insert_data_mongoDB(self, records, database, collection):
         """Insert records into MongoDB collection"""
         try:
-            mongo_client = pymongo.MongoClient(MONGO_DB_URI, tlsCAFile=ca)
-            db = mongo_client[database]
-            col = db[collection]
-            result = col.insert_many(records)
-            return len(result.inserted_ids)
+            self.database = database
+            self.collection = collection
+            self.records = records
+            self.mongo_client = pymongo.MongoClient(MONGO_DB_URI, tlsCAFile=ca)
+            self.database = self.mongo_client[self.database]
+            self.collection = self.database[self.collection]
+
+            self.collection.insert_many(self.records)
+            return len(self.records)
         except Exception as e:
             raise NetworkSecurityException(e, sys)
 
